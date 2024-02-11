@@ -9,27 +9,26 @@ export interface CatData {
 }
 
 const HomePage = () => {
-  const [catData, setCatData] = useState<CatData | null>(null);
+  const [catData, setCatData] = useState<CatData>();
   const [loading, setLoading] = useState(true);
+  const fetchCatData = async () => {
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_KEY;
 
-  useEffect(() => {
-    const fetchCatData = async () => {
-      try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_KEY;
-
-        if (!apiUrl) {
-          throw new Error("API_URL environment variable is not defined.");
-        }
-
-        const response = await axios.get(apiUrl);
-        setCatData(response.data[0]);
-
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching cat data:", error);
-        setLoading(false);
+      if (!apiUrl) {
+        throw new Error("API_URL environment variable is not defined.");
       }
-    };
+
+      const response = await axios.get(apiUrl);
+      setCatData(response.data[0]);
+
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching cat data:", error);
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
     fetchCatData();
   }, []);
 
