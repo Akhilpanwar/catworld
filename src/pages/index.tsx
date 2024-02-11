@@ -3,24 +3,35 @@ import axios from "axios";
 import CatCard from "@/components/CatCard";
 import "@/styles/globals.css";
 import Spinner from "@/components/Spinner";
-export interface CatData {
-  url: string;
-  id: string;
-}
+import { CatInterface } from "@/types/CatInterface";
 
 const HomePage = () => {
-  const [catData, setCatData] = useState<CatData>();
+  const [catData, setCatData] = useState<CatInterface>();
   const [loading, setLoading] = useState(true);
   const fetchCatData = async () => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_KEY;
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
       if (!apiUrl) {
         throw new Error("API_URL environment variable is not defined.");
       }
 
       const response = await axios.get(apiUrl);
-      setCatData(response.data[0]);
+
+      if (response) {
+        const res = await axios.get(
+          `https://api.thecatapi.com/v1/images/${response.data[0].id}`
+        );
+        if (res) {
+          const breedData = res.data?.breeds[0];
+          setCatData((prevState) => ({
+            ...prevState,
+            url: res.data.url,
+            id: res.data.id,
+            breed: breedData,
+          }));
+        }
+      }
 
       setLoading(false);
     } catch (error) {
@@ -38,7 +49,7 @@ const HomePage = () => {
         {loading ? (
           <Spinner />
         ) : catData ? (
-          <CatCard catData={catData} />
+          <CatCard catData={catData} fetch={fetchCatData} />
         ) : (
           <div>No cat data available</div>
         )}
