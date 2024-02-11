@@ -11,19 +11,25 @@ export interface CatData {
 const HomePage = () => {
   const [catData, setCatData] = useState<CatData | null>(null);
   const [loading, setLoading] = useState(true);
-  const fetchCatData = async () => {
-    try {
-      const response = await axios.get(
-        "https://api.thecatapi.com/v1/images/search"
-      );
-      setCatData(response.data[0]);
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching cat data:", error);
-      setLoading(false);
-    }
-  };
+
   useEffect(() => {
+    const fetchCatData = async () => {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_KEY;
+
+        if (!apiUrl) {
+          throw new Error("API_URL environment variable is not defined.");
+        }
+
+        const response = await axios.get(apiUrl);
+        setCatData(response.data[0]);
+
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching cat data:", error);
+        setLoading(false);
+      }
+    };
     fetchCatData();
   }, []);
 
